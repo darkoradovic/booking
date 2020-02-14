@@ -6,11 +6,15 @@ const graphqlHttp = require("express-graphql");
 const graphiqlSchema = require("./graphql/schema/index");
 const graphiqlResolvers = require("./graphql/resolvers/index");
 
+const isAuth = require("./middleware/is-auth");
+
 require("dotenv").config();
 
 const app = express();
 
 app.use(bodyParser.json());
+
+app.use(isAuth);
 
 app.use(
   "/graphql",
@@ -28,7 +32,6 @@ mongoose.connect(uri, {
   useUnifiedTopology: true
 });
 
-//uspostavljmo konekciju
 const connection = mongoose.connection;
 connection.once("open", () => {
   console.log("MongoDB connection success");
