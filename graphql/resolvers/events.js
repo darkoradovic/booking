@@ -1,4 +1,5 @@
 const Event = require("../../models/event");
+const User = require("../../models/users");
 const { transformEvent } = require("./helpers");
 
 module.exports = {
@@ -26,6 +27,7 @@ module.exports = {
       .save()
       .then(result => {
         createdEvent = transformEvent(result);
+        //ove linije koda zbog toga da taj event ide kod tog usera
         return User.findById(req.userId);
       })
       .then(user => {
