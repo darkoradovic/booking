@@ -11,7 +11,7 @@
   justify-content: space-between;
   align-items: center;
   box-sizing: border-box;
-  z-index: 10000;
+  z-index: 1000;
 }
 
 .main-navigation__logo img {

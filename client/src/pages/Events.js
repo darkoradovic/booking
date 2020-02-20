@@ -4,6 +4,11 @@ import Backdrop from "../components/Backdrop/Backdrop";
 import axios from "axios";
 import AuthContext from "../context/auth-context";
 import Spinner from "../components/Spinner/Spinner";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+toast.configure({autoClose: 6000})
 
 export class Events extends Component {
   state = {
@@ -96,9 +101,16 @@ export class Events extends Component {
             }
           });
           return { events: updatedEvents };
+         
         });
       });
   };
+
+  notify = () => {
+    toast.success("Event Added :)", {
+      position: toast.POSITION.TOP_RIGHT
+    });
+  }
 
   modalCancel = () => {
     this.setState({ creating: false, selectedEvent: null });
@@ -235,6 +247,7 @@ export class Events extends Component {
             canConfirm={true}
             onCancel={this.modalCancel}
             onConfirm={this.modalConfirm}
+            onNotify={this.notify}
             confirmText="Confirm"
           >
             <form>
@@ -295,6 +308,7 @@ export class Events extends Component {
         ) : (
           <ul className="events__list">{eventsList}</ul>
         )}
+        {/* <button onClick={this.notify}>Click me</button> */}
       </React.Fragment>
     );
   }
