@@ -24,7 +24,7 @@ export class Auth extends Component {
     if (email.trim().length === 0 || password.trim().length === 0) {
       return;
     }
-    console.log(this.state.email);
+    //console.log(this.state.email);
 
     let requestBody = {
       query: `
@@ -75,6 +75,7 @@ export class Auth extends Component {
       return { isLogin: !prevState.isLogin };
     });
   };
+
 
   render() {
     return (

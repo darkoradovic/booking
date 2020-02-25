@@ -3,12 +3,12 @@ import Modal from "../components/Modal/Modal";
 import Backdrop from "../components/Backdrop/Backdrop";
 import axios from "axios";
 import AuthContext from "../context/auth-context";
+import Cookies from "js-cookie";
 import Spinner from "../components/Spinner/Spinner";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-
-toast.configure({autoClose: 6000})
+toast.configure({ autoClose: 6000 });
 
 export class Events extends Component {
   state = {
@@ -29,8 +29,6 @@ export class Events extends Component {
   componentDidMount() {
     this.fetchEvents();
   }
-
-
 
   handleChange = e => {
     this.setState({
@@ -75,11 +73,11 @@ export class Events extends Component {
       `
     };
 
-    const token = this.context.token;
+    const token = Cookies.get("token");
 
     axios
       .post("http://localhost:5000/graphql", requestBody, {
-        headers: { Authorization: "Bearer " + token }
+        headers: { Authorization: token ? `Bearer ${token}` : "" }
       })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
@@ -101,16 +99,25 @@ export class Events extends Component {
             }
           });
           return { events: updatedEvents };
-         
         });
       });
   };
 
-  notify = () => {
+  notifyEvent = () => {
     toast.success("Event Added :)", {
       position: toast.POSITION.TOP_RIGHT
     });
-  }
+  };
+
+  notifyBook = () => {
+    this.context.token
+      ? toast.success("Event Booked :)", {
+          position: toast.POSITION.TOP_RIGHT
+        })
+      : toast.error("Please login to be able to cofirm !", {
+          position: toast.POSITION.TOP_RIGHT
+        });
+  };
 
   modalCancel = () => {
     this.setState({ creating: false, selectedEvent: null });
@@ -177,9 +184,11 @@ export class Events extends Component {
       `
     };
 
+    const token = Cookies.get("token");
+
     axios
       .post("http://localhost:5000/graphql", requestBody, {
-        headers: { Authorization: "Bearer " + this.context.token }
+        headers: { Authorization: token ? `Bearer ${token}` : "" }
       })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
@@ -200,16 +209,15 @@ export class Events extends Component {
   }
 
   render() {
-
-    const num = Math.floor(Math.random() * 5000) + 1;;
-    const imageUrl = `https://api.adorable.io/avatars/${num}`
+    const num = Math.floor(Math.random() * 5000) + 1;
+    const imageUrl = `https://api.adorable.io/avatars/${num}`;
 
     const eventsList = this.state.events.map(event => {
       return (
         <div key={event._id} className="wrap">
           <li className="event-post">
             <div className="event-post__img">
-               <img src={imageUrl} alt=".." /> 
+              <img src={imageUrl} alt=".." />
             </div>
             <div className="event-post__info">
               <div>
@@ -222,7 +230,8 @@ export class Events extends Component {
             </div>
           </li>
           <div className="info-btn">
-            {this.context.userId === event.creator._id ? (
+            {this.context.userId === event.creator._id &&
+            this.context.auth === true ? (
               <p>You are the owner</p>
             ) : (
               <button
@@ -247,7 +256,7 @@ export class Events extends Component {
             canConfirm={true}
             onCancel={this.modalCancel}
             onConfirm={this.modalConfirm}
-            onNotify={this.notify}
+            onNotify={this.notifyEvent}
             confirmText="Confirm"
           >
             <form>
@@ -285,6 +294,7 @@ export class Events extends Component {
             canConfirm={true}
             onCancel={this.modalCancel}
             onConfirm={this.bookEventHandler}
+            onNotify={this.notifyBook}
             confirmText={this.context.token ? "Book" : "Confirm"}
           >
             <h1>{this.state.selectedEvent.title}</h1>
@@ -308,7 +318,6 @@ export class Events extends Component {
         ) : (
           <ul className="events__list">{eventsList}</ul>
         )}
-        {/* <button onClick={this.notify}>Click me</button> */}
       </React.Fragment>
     );
   }
