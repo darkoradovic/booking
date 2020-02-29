@@ -2,14 +2,15 @@ import React, { Component } from "react";
 import axios from "axios";
 import AuthContext from "../context/auth-context";
 import Spinner from "../components/Spinner/Spinner";
+import Cookies from "js-cookie";
+import Chart from "../components/Chart/Chart";
 
 export class Bookings extends Component {
   state = {
     isLoading: false,
-    bookings: []
+    bookings: [],
+    output: "list"
   };
-
-  
 
   static contextType = AuthContext;
 
@@ -29,15 +30,18 @@ export class Bookings extends Component {
                       _id
                       title
                       date
+                      price
                   }
                 }
               }
             `
     };
 
+    const token = Cookies.get("token");
+
     axios
       .post("http://localhost:5000/graphql", requestBody, {
-        headers: { Authorization: "Bearer " + this.context.token }
+        headers: { Authorization: token ? `Bearer ${token}` : "" }
       })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
@@ -52,7 +56,7 @@ export class Bookings extends Component {
       });
   };
 
-  cancelBooking = (bookingId) => {
+  cancelBooking = bookingId => {
     this.setState({ isLoading: true });
     const requestBody = {
       query: `
@@ -63,14 +67,16 @@ export class Bookings extends Component {
                 }
               }
             `,
-            variables:{
-              id: bookingId
-            }
+      variables: {
+        id: bookingId
+      }
     };
+
+    const token = Cookies.get("token");
 
     axios
       .post("http://localhost:5000/graphql", requestBody, {
-        headers: { Authorization: "Bearer " + this.context.token }
+        headers: { Authorization: token ? `Bearer ${token}` : "" }
       })
       .then(res => {
         if (res.status !== 200 && res.status !== 201) {
@@ -81,38 +87,64 @@ export class Bookings extends Component {
       .then(resData => {
         //console.log(resData);
         this.setState(prevState => {
-            const updatedBookings = prevState.bookings.filter(booking => {
-                return booking._id !== bookingId
-            })
-            return {bookings: updatedBookings, isLoading: false}
-        })
+          const updatedBookings = prevState.bookings.filter(booking => {
+            return booking._id !== bookingId;
+          });
+          return { bookings: updatedBookings, isLoading: false };
+        });
       });
-  }
+  };
+
+  changeOutputTypeHandler = output => {
+    if (output === "list") {
+      this.setState({ output: "list" });
+    } else {
+      this.setState({ output: "chart" });
+    }
+  };
 
   render() {
-    return (
-      <div className="bookings-wrapper">
-        {this.state.isLoading ? (
-          <Spinner />
-        ) : (
-          <ul className="bookings__list">
-            {this.state.bookings.map(booking => {
-              return (
-                <li key={booking._id} className="bookings__item">
-                  <div className="bookings__item-data">
-                    {booking.event.title} -{" "}
-                    {new Date(booking.createdAt).toLocaleDateString()}
-                  </div>
-                  <div className="bookings__item-actions">
-                    <button className="btn" onClick={this.cancelBooking.bind(this, booking._id)}>Cancel</button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-    );
+    let content = <Spinner />;
+    if (!this.state.isLoading) {
+      content = (
+        <React.Fragment>
+          <div className="bookings-control">
+            <button className={this.state.output === 'list' ? 'active' : ''} onClick={this.changeOutputTypeHandler.bind(this, "list")}>
+              List
+            </button>
+            <button className={this.state.output === 'chart' ? 'active' : ''} onClick={this.changeOutputTypeHandler.bind(this, "chart")}>
+              Chart
+            </button>
+          </div>
+          <div>
+            {this.state.output === "list" ? (
+              <ul className="bookings__list">
+                {this.state.bookings.map(booking => {
+                  return (
+                    <li key={booking._id} className="bookings__item">
+                      <div className="bookings__item-data">
+                        {booking.event.title} -{" "}
+                        {new Date(booking.createdAt).toLocaleDateString()}
+                      </div>
+                      <div className="bookings__item-actions">
+                        <button
+                          className="btn"
+                          onClick={this.cancelBooking.bind(this, booking._id)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : <Chart bookings={this.state.bookings} />}
+          </div>
+        </React.Fragment>
+      );
+    }
+
+    return <div className="bookings-wrapper">{content}</div>;
   }
 }
 

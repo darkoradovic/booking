@@ -76,27 +76,52 @@ export class Auth extends Component {
     });
   };
 
-
   render() {
     return (
-      <div className="form-wrapper">
-        <form className="auth-form" onSubmit={this.submitHandler}>
-          <div className="form-control">
-            <label htmlFor="email">E-mail</label>
-            <input type="email" id="email" onChange={this.handleChange} />
+      <React.Fragment>
+        <div className="area">
+          <ul className="circles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+          </ul>
+          <div className="form-wrapper">
+            <form className="auth-form" onSubmit={this.submitHandler}>
+              <div className="form-control">
+                <label htmlFor="email">E-mail</label>
+                <input
+                  type="email"
+                  id="email"
+                  onChange={this.handleChange}
+                  placeholder="example@test.com"
+                />
+              </div>
+              <div className="form-control">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  onChange={this.handleChange}
+                  placeholder="******"
+                />
+              </div>
+              <div className="form-actions">
+                <button type="submit">Submit</button>
+                <button type="button" onClick={this.switchModeHandler}>
+                  Switch to {this.state.isLogin ? "Signup" : "Login"}
+                </button>
+              </div>
+            </form>
           </div>
-          <div className="form-control">
-            <label htmlFor="password">Password</label>
-            <input type="password" id="password" onChange={this.handleChange} />
-          </div>
-          <div className="form-actions">
-            <button type="submit">Submit</button>
-            <button type="button" onClick={this.switchModeHandler}>
-              Switch to {this.state.isLogin ? "Signup" : "Login"}
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+      </React.Fragment>
     );
   }
 }

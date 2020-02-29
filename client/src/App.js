@@ -8,7 +8,7 @@ import Navbar from "./components/Navigation/Navbar";
 
 import AuthContext from "./context/auth-context";
 
-import Cookies from 'js-cookie'
+import Cookies from "js-cookie";
 
 class App extends React.Component {
   state = {
@@ -17,34 +17,32 @@ class App extends React.Component {
     auth: false
   };
 
-  componentDidMount(){
-    this.readCookie()
+  componentDidMount() {
+    this.readCookie();
   }
 
   login = (token, userId, tokenExpiration) => {
     this.setState({ token: token, userId: userId, auth: true });
     //localStorage.setItem("Token", JSON.stringify(this.state.token));
-    Cookies.set("token", token, {expires: 1})
-    Cookies.set("userID", userId, {expires: 1})
+    Cookies.set("token", token, { expires: 1 });
+    Cookies.set("userID", userId, { expires: 1 });
   };
 
   logout = () => {
     this.setState({ token: null, userId: null, auth: false });
     //localStorage.removeItem("Token");
-    Cookies.remove("token")
-    Cookies.remove("userID")
+    Cookies.remove("token");
+    Cookies.remove("userID");
   };
 
   readCookie = () => {
-    const token =  Cookies.get("token");
-    const userID = Cookies.get("userID")
-    if(token){
-      this.setState({auth: true, token: token, userId: userID})
+    const token = Cookies.get("token");
+    const userID = Cookies.get("userID");
+    if (token) {
+      this.setState({ auth: true, token: token, userId: userID });
     }
     //console.log(this.state)
-  }
-
-
+  };
 
   render() {
     //console.log(this.state)
